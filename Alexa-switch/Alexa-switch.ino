@@ -3,13 +3,28 @@
 
 #include "Espalexa.h"
 #include <ESP8266WiFi.h>
+#include <WiFiClient.h>
 #include <ESP8266WebServer.h>
+#include <WebSocketsServer.h>
+#include <ESP8266mDNS.h>
+#include <WiFiUdp.h>
+#include <ArduinoOTA.h>
+#include <FS.h>
 #include <EEPROM.h>
+#include <Arduino.h>
+
+#define ESP8266
 
 //WI-FI----------------------------------------------------------------------------------------------------------------
 bool wifiConnected = false;
 const char* ssid = "Vodafone-Menegatti_plus";
 const char* password = "Menegatti13";
+
+const char* ssid_AP = "Alexa-switch";
+const char* password_AP = "";
+IPAddress IP_AP(192,168,4,1);
+IPAddress GTW_AP(192,168,4,1);
+IPAddress mask_AP = (255, 255, 255, 0);
 
 //EEPROM----------------------------------------------------------------------------------------------------------------
 int EE_ind;
@@ -20,6 +35,8 @@ Espalexa espalexa;
 
 //WEBSERVER----------------------------------------------------------------------------------------------------------------
 ESP8266WebServer server(80);
+WebSocketsServer webSocket(81);
+File fsUploadFile;
 
 //FUNCTIONS----------------------------------------------------------------------------------------------------------------
 void alphaChanged(EspalexaDevice* d) 
@@ -86,6 +103,7 @@ boolean connectWifi()
 void setup()
 {
   Serial.begin(115200);
+  Serial.println("Setup...");
 
   EEPROM.begin(512);
   Eeprom_read();
@@ -94,9 +112,10 @@ void setup()
   Serial.println(Device_Name);
   Serial.print("Name lenght: ");
   Serial.println(strlen(Device_Name));
-  if(strlen(Device_Name) == 0)
+  if(strlen(Device_Name) == 0 || strlen(Device_Name) == 20)
   {
-    
+    SERVER_Setup();
+    SPIFFS_Setup();
   }
   else
   {
@@ -141,7 +160,8 @@ void setup()
 //MAIN---------------------------------------------------------------------------------------------------------------------
 void loop()
 {
-   //server.handleClient() //you can omit this line from your code since it will be called in espalexa.loop()
-   espalexa.loop();
-   delay(1);
+  webSocket.loop();
+  server.handleClient(); //you can omit this line from your code since it will be called in espalexa.loop()
+  espalexa.loop();
+  delay(1);
 }

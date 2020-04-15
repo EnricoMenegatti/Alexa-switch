@@ -1,19 +1,24 @@
-/*
- * This is an example on how to use Espalexa alongside an ESP8266WebServer.
- */ 
+
 #define ESPALEXA_MAXDEVICES 1
 
 #include "Espalexa.h"
 #include <ESP8266WiFi.h>
 #include <ESP8266WebServer.h>
+#include <EEPROM.h>
 
+//WI-FI----------------------------------------------------------------------------------------------------------------
 bool wifiConnected = false;
-
-// Change this!!
 const char* ssid = "Vodafone-Menegatti_plus";
 const char* password = "Menegatti13";
 
+//EEPROM----------------------------------------------------------------------------------------------------------------
+int EE_ind;
+char Device_Name[20] = "";
+
+//ALEXA----------------------------------------------------------------------------------------------------------------
 Espalexa espalexa;
+
+//WEBSERVER----------------------------------------------------------------------------------------------------------------
 ESP8266WebServer server(80);
 
 //FUNCTIONS----------------------------------------------------------------------------------------------------------------
@@ -81,39 +86,54 @@ boolean connectWifi()
 void setup()
 {
   Serial.begin(115200);
-  // Initialise wifi connection
-  wifiConnected = connectWifi();
-  
-  if(wifiConnected){
-    server.on("/", HTTP_GET, [](){
-    server.send(200, "text/plain", "This is an example index page your server may send.");
-    });
-    server.on("/test", HTTP_GET, [](){
-    server.send(200, "text/plain", "This is a second subpage you may have.");
-    });
-    server.onNotFound([](){
-      if (!espalexa.handleAlexaApiCall(server.uri(),server.arg(0))) //if you don't know the URI, ask espalexa whether it is an Alexa control request
-      {
-        //whatever you want to do with 404s
-        server.send(404, "text/plain", "Not found");
-      }
-    });
 
-    // Define your devices here.
-    espalexa.addDevice("Prova", alphaChanged, EspalexaDeviceType::onoff); //non-dimmable device
-
-    espalexa.begin(&server); //give espalexa a pointer to your server object so it can use your server instead of creating its own
-    //server.begin(); //omit this since it will be done by espalexa.begin(&server)
-  } 
+  EEPROM.begin(512);
+  Eeprom_read();
+  //Eeprom_save();
+  Serial.print("Device name: ");
+  Serial.println(Device_Name);
+  Serial.print("Name lenght: ");
+  Serial.println(strlen(Device_Name));
+  if(strlen(Device_Name) == 0)
+  {
+    
+  }
   else
   {
-    while (1)
+    // Initialise wifi connection
+    wifiConnected = connectWifi();
+    
+    if(wifiConnected){
+      server.on("/", HTTP_GET, [](){
+      server.send(200, "text/plain", "This is an example index page your server may send.");
+      });
+      server.on("/test", HTTP_GET, [](){
+      server.send(200, "text/plain", "This is a second subpage you may have.");
+      });
+      server.onNotFound([](){
+        if (!espalexa.handleAlexaApiCall(server.uri(),server.arg(0))) //if you don't know the URI, ask espalexa whether it is an Alexa control request
+        {
+          //whatever you want to do with 404s
+          server.send(404, "text/plain", "Not found");
+        }
+      });
+  
+      // Define your devices here.
+      espalexa.addDevice("Prova", alphaChanged, EspalexaDeviceType::onoff); //non-dimmable device
+  
+      espalexa.begin(&server); //give espalexa a pointer to your server object so it can use your server instead of creating its own
+      //server.begin(); //omit this since it will be done by espalexa.begin(&server)
+    } 
+    else
     {
-      Serial.println("Cannot connect to WiFi. Please check data and reset the ESP.");
-      delay(2500);
+      while (1)
+      {
+        Serial.println("Cannot connect to WiFi. Please check data and reset the ESP.");
+        delay(2500);
+      }
     }
   }
-
+   
   pinMode(LED_BUILTIN, OUTPUT);
   pinMode(D1, OUTPUT);
 }

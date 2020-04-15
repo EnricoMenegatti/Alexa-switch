@@ -1,0 +1,94 @@
+:root {
+
+}
+
+body {
+  margin: 0px;
+  font-family: 'Roboto', sans-serif;
+}
+
+header {
+  text-align: center;
+  background-color: #4CB5AB;
+  color: white;
+  padding: 6px;
+  box-shadow: 1px 1px 5px #222222;
+  position: relative;
+}
+
+h1 {
+  margin: 0px;
+  text-align: center;
+  padding: 10px 0px 15px 15px;
+  font-size: 32;
+}
+
+h2 {
+  margin-top: 0px;
+}
+
+/* NOTE: Per campi di inserimento valori */
+input[type=text], input[type=number], input[type=password] {
+  width: 70%;
+  float: right;
+  padding: 10px 0px 10px 15px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  resize: vertical;
+  font-size: 16px;
+}
+
+input[type=reset], input[type=button] {
+  background-color: #00857C;
+  color: #FFFFFF;
+  padding: 12px 20px;
+  border: 2px solid #00857C;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 20px;
+  margin: 30px 20px 0px 20px;
+  transition-duration: 0.4s;
+  outline: none;
+}
+
+input[type=reset]:hover, input[type=button]:hover {
+  background-color: #FFFFFF;
+  color: #000000;
+}
+
+input[type=reset]:active, input[type=button]:active {
+  background-color: #445963;
+  color: #FFFFFF;
+}
+
+label {
+  padding: 12px 12px 12px 0px;
+  display: inline-block;
+}
+
+form.form-1 {
+  width: 600px;
+  border-radius: 10px;
+  background-color: #F0F0F0;
+  margin: 20px;
+  padding: 20px 20px 20px 0px;
+}
+
+@media screen and (max-width: 600px) {
+
+  form.form-1 {
+    width: 90%;
+    border-radius: 10px;
+    background-color: #F0F0F0;
+    margin: 20px;
+    padding: 20px 20px 20px 0px;
+  }
+
+  input[type=text], input[type=number], input[type=password] {
+    width: 90%;
+  }
+
+  button.but-1 {
+    float: right;
+  }
+}

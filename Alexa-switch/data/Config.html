@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>ESP-Alexa switch</title>
+        <link href='main.css' rel='stylesheet' type='text/css'>
+        <script src="main.js" type="text/javascript"></script>
+    </head>
+
+    <body>
+        <center>
+            <H1>Configurazione ESP-Alexa switch</H1> <!--titolo-->
+
+            <form class="form-1">
+                <H2>Wi-Fi</H2>
+                <label for="ssid">SSID</label>
+                <input type="text" id="ssid" name="ssid">
+                <br><br>
+
+                <label for="pw">Password</label>
+                <input type="password" id="pw" name="pw">
+                <br><br><br>
+
+                <H2>Dispositivo</H2>
+                <label for="name">Nome</label>
+                <input type="text" id="name" name="name" maxlength="20">
+
+                <input type="reset" value="Reimposta">
+                <input type="button" value="Salva" onclick="Save_Eeprom()">
+            </form>
+
+            <div>
+              <p id="debug"></p>
+            </div>
+        </center>
+    </body>
+</html>

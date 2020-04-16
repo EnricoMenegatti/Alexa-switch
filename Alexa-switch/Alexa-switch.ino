@@ -1,24 +1,19 @@
 
 #define ESPALEXA_MAXDEVICES 1
+#define ESPALEXA_DEBUG
 
 #include "Espalexa.h"
 #include <ESP8266WiFi.h>
 #include <WiFiClient.h>
 #include <ESP8266WebServer.h>
-#include <WebSocketsServer.h>
 #include <ESP8266mDNS.h>
-#include <WiFiUdp.h>
-#include <ArduinoOTA.h>
 #include <FS.h>
 #include <EEPROM.h>
-#include <Arduino.h>
-
-#define ESP8266 
 
 //WI-FI----------------------------------------------------------------------------------------------------------------
 bool wifiConnected = false;
-char ssid[40] = "";
-char password[40] = "";
+char ssid[40] = "Vodafone-Menegatti_plus";
+char password[40] = "Menegatti13";
 
 const char* ssid_AP = "Alexa-switch";
 const char* password_AP = "";
@@ -35,7 +30,6 @@ Espalexa espalexa;
 
 //WEBSERVER----------------------------------------------------------------------------------------------------------------
 ESP8266WebServer server(80);
-WebSocketsServer webSocket(81);
 File fsUploadFile;
 
 
@@ -115,7 +109,7 @@ void setup()
   Serial.println("Setup...");
 
   EEPROM.begin(512);
-  Eeprom_read();
+  //Eeprom_read();
 
   Serial.print("SSID: "); Serial.println(ssid);
   Serial.print("Password: "); Serial.println(password);
@@ -124,27 +118,29 @@ void setup()
   if(WiFiSTA_Setup())//try to connect Wi-Fi
   {
     Start_Server();
-    SPIFFS_Setup();
     
     // Define your devices here.
-    espalexa.addDevice(Device_Name, alphaChanged, EspalexaDeviceType::onoff); //non-dimmable device
-    espalexa.begin();
+    espalexa.addDevice("Prova", alphaChanged, EspalexaDeviceType::onoff); //non-dimmable device
+    espalexa.begin(&server);
+
+    SPIFFS_Setup();
   }
   else //start AP Wi-Fi
   {
     WiFiAP_Setup();
     Start_Server();
+    server.begin(); // start the HTTP server
     SPIFFS_Setup();
   }
 
   pinMode(LED_BUILTIN, OUTPUT);
   pinMode(D1, OUTPUT);
 }
- 
+
+
 //MAIN---------------------------------------------------------------------------------------------------------------------
 void loop()
 {
-  webSocket.loop();
   server.handleClient();
   espalexa.loop();
   delay(1);

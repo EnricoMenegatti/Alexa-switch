@@ -1,25 +1,9 @@
 
-void SERVER_Setup() 
-{
-  WiFi.softAPConfig(IP_AP, GTW_AP, mask_AP);
-  WiFi.softAP(ssid_AP, password_AP);
-
-  Serial.println();
-  Serial.print("AP SSID: ");
-  Serial.println(ssid_AP);
-  Serial.print("AP IP address: ");
-  Serial.println(WiFi.softAPIP());
-
-  webSocket.begin();                 // start the websocket server
-  webSocket.onEvent(WSS_Event); // if there's an incomming websocket message, go to function 'WSS_Event'
-
-  Start_Server();
-  
-  Serial.println("Server setup OK");
-}
-
 void Start_Server() // Start a HTTP server with a file read handler and an upload handler
 {
+  webSocket.begin();                 // start the websocket server
+  webSocket.onEvent(WSS_Event); // if there's an incomming websocket message, go to function 'WSS_Event'
+  
   server.on("/Edit.html", HTTP_POST, []() 
   {
     server.send(200, "text/plain", "");
@@ -56,7 +40,43 @@ void WSS_Event(uint8_t num, WStype_t type, uint8_t * payload, size_t lenght)
     case WStype_TEXT:                     // if new text data is received
     {
       Serial.printf("[%u] get Text: %s\n", num, payload);
-      
+      if(payload[0] == 'E' && payload[1] == 'S')//read ssid, pw & device name then save in eeprom
+      {
+        int i, j, temp;
+        for(i = 0; i < 40; i++)
+        {
+          ssid[i] = '\0';
+          password[i] = '\0';
+          Device_Name[i] = '\0';
+        }
+        for(i = 3; payload[i] != '*'; i++)
+        {
+          ssid[j] = payload[i];
+          j++;
+        }
+        
+        temp = i;
+        j = 0;
+        for(i = temp + 1; payload[i] != '*'; i++)
+        {
+          password[j] = payload[i];
+          j++;
+        }
+        
+        temp = i;
+        j = 0;
+        for(i = temp + 1; payload[i] != '*'; i++)
+        {
+          Device_Name[j] = payload[i];
+          j++;
+        }
+        
+        Serial.print("SSID: "); Serial.println(ssid); Serial.println(sizeof(ssid));
+        Serial.print("Password: "); Serial.println(password); Serial.println(sizeof(password));
+        Serial.print("Device Name: "); Serial.println(Device_Name); Serial.println(sizeof(Device_Name));
+
+        Eeprom_save();
+      }
     }
     break;
   }

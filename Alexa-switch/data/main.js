@@ -20,7 +20,7 @@ function Save_Eeprom() {
   var Pw = document.getElementById("pw").value;
   var Name = document.getElementById("name").value;
 
-  var Setup = Ssid + "*" + Pw + "*" + Name + "**";
+  var Setup = "ES*" + Ssid + "*" + Pw + "*" + Name + "**";
   Debug.innerHTML = Setup;
   connection.send(Setup);
 }

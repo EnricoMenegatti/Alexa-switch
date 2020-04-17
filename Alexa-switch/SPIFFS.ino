@@ -107,4 +107,147 @@ String getContentType(String filename) // determine the filetype of a given file
   else if (filename.endsWith(".gz")) return "application/x-gzip";
   return "text/plain";
 }
+
+boolean fileWiFiConfig(int fMode) //save wifi configuration parameter inside a SPIFFS file
+{
+  const char* path = "/wifiConfig";
+  
+  switch(fMode)
+  {
+    case 'write': //write file----------------------------------------------------------------------------
+    {
+      File new_file = SPIFFS.open(path, "w+");
+      if (!new_file)
+      {
+        Serial.println("WiFi file open failed!");
+        return false;
+      }
+      
+      Serial.println("Writing to SPIFFS WiFi...");
+      new_file.print("SSID: "); new_file.print(ssid); new_file.println(";");
+      new_file.print("Password: "); new_file.print(password); new_file.println(";");
+      new_file.close();
+      Serial.println("Write to SPIFFS WiFi OK!");
+      return true;
+    }
+    break;
+  
+    case 'read': //read file-------------------------------------------------------------------------------
+    {
+      int i, j;
+      File read_file = SPIFFS.open(path, "r");
+      if (!read_file)
+      {
+        Serial.println("WiFi file open failed!");
+        return false;
+      }
+      Serial.println("Reading to SPIFFS WiFi...");
+      String s = read_file.readString();
+      Serial.println(s);
+      read_file.close();
+  
+      int n = s.length();
+      char char_array[n + 1]; 
+      strcpy(char_array, s.c_str());
+
+      for(i = 6; char_array[i] != ';'; i++)
+      {
+        Serial.print(char_array[i]);
+        ssid[j] = char_array[i];
+        j++;
+      }
+
+      j = 0;
+      for(i += 13; char_array[i] != ';'; i++)
+      {
+        Serial.print(char_array[i]);
+        password[j] = char_array[i];
+        j++;
+      }
+      
+      Serial.println("Read to SPIFFS WiFi OK!");
+      return true;
+    }
+    break;
+  
+    case 'delete': //delete file--------------------------------------------------------------------------
+    {
+      if(!SPIFFS.remove(path))
+      {
+        Serial.println("WiFi file NOT removed!");
+        return false;
+      }
+      Serial.println("WiFi file removed!");
+      return true;
+    }
+    break;
+  }
+}
+
+boolean fileDeviceConfig(int fMode) //save wifi configuration parameter inside a SPIFFS file
+{
+  const char* path = "/deviceConfig";
+  
+  switch(fMode)
+  {
+    case 'write': //write file----------------------------------------------------------------------------
+    {
+      File new_file = SPIFFS.open(path, "w+");
+      if (!new_file)
+      {
+        Serial.println("Device file open failed!");
+        return false;
+      }
+      
+      Serial.println("Writing to SPIFFS Device...");
+      new_file.print("Device name: "); new_file.print(Device_Name); new_file.println(";");
+      new_file.close();
+      Serial.println("Write to SPIFFS Device OK!");
+      return true;
+    }
+    break;
+  
+    case 'read': //read file-------------------------------------------------------------------------------
+    {
+      int i, j;
+      File read_file = SPIFFS.open(path, "r");
+      if (!read_file)
+      {
+        Serial.println("Device file open failed!");
+        return false;
+      }
+      Serial.println("Reading to SPIFFS Device...");
+      String s = read_file.readString();
+      Serial.println(s);
+      read_file.close();
+  
+      int n = s.length();           //string to char
+      char char_array[n + 1];       //
+      strcpy(char_array, s.c_str());//
+
+      for(i = 13; char_array[i] != ';'; i++)
+      {
+        Serial.print(char_array[i]);
+        Device_Name[j] = char_array[i];
+        j++;
+      }
+
+      Serial.println("Read to SPIFFS Device OK!");
+      return true;
+    }
+    break;
+  
+    case 'delete': //delete file--------------------------------------------------------------------------
+    {
+      if(!SPIFFS.remove(path))
+      {
+        Serial.println("Device file NOT removed!");
+        return false;
+      }
+      Serial.println("Device file removed!");
+      return true;
+    }
+    break;
+  }
+}
  

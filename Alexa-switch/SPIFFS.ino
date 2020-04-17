@@ -186,7 +186,7 @@ boolean fileWiFiConfig(int fMode) //save wifi configuration parameter inside a S
 
 boolean fileDeviceConfig(int fMode) //save wifi configuration parameter inside a SPIFFS file
 {
-  const char* path = "/deviceConfig";
+  const char* path = "/DeviceConfig";
   
   switch(fMode)
   {

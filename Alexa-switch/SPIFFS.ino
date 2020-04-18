@@ -145,25 +145,15 @@ boolean fileWiFiConfig(int fMode) //save wifi configuration parameter inside a S
       String s = read_file.readString();
       Serial.println(s);
       read_file.close();
-  
-      int n = s.length();
-      char char_array[n + 1]; 
-      strcpy(char_array, s.c_str());
 
-      for(i = 6; char_array[i] != ';'; i++)
-      {
-        Serial.print(char_array[i]);
-        ssid[j] = char_array[i];
-        j++;
-      }
-
-      j = 0;
-      for(i += 13; char_array[i] != ';'; i++)
-      {
-        Serial.print(char_array[i]);
-        password[j] = char_array[i];
-        j++;
-      }
+      int firstEqual = s.indexOf(':');
+      int lastEqual = s.lastIndexOf(':');
+      int firstDiv = s.indexOf(';');
+      int lastDiv = s.lastIndexOf(';');
+      String S_ssid = s.substring(firstEqual + 2, firstDiv);
+      String S_pw = s.substring(lastEqual + 2, lastDiv);
+      S_ssid.toCharArray(ssid, 40);
+      S_pw.toCharArray(password, 40);
       
       Serial.println("Read to SPIFFS WiFi OK!");
       return true;
@@ -220,18 +210,14 @@ boolean fileDeviceConfig(int fMode) //save wifi configuration parameter inside a
       String s = read_file.readString();
       Serial.println(s);
       read_file.close();
-  
-      int n = s.length();           //string to char
-      char char_array[n + 1];       //
-      strcpy(char_array, s.c_str());//
 
-      for(i = 13; char_array[i] != ';'; i++)
-      {
-        Serial.print(char_array[i]);
-        Device_Name[j] = char_array[i];
-        j++;
-      }
-
+      int firstEqual = s.indexOf(':');
+      int firstDiv = s.indexOf(';');
+      String S_name = s.substring(firstEqual + 2, firstDiv);
+      if(S_name.length() <= 1) return false;
+      
+      S_name.toCharArray(Device_Name, 40);
+      
       Serial.println("Read to SPIFFS Device OK!");
       return true;
     }

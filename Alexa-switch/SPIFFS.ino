@@ -88,7 +88,7 @@ void handleFileUpload() // upload a new file to the SPIFFS
     { 
       fsUploadFile.close(); // Close the file again
       Serial.print("handleFileUpload Size: "); Serial.println(upload.totalSize);
-      server.sendHeader("Location","/success.html"); // Redirect the client to the success page
+      server.sendHeader("Location","/Success.html"); // Redirect the client to the success page
       server.send(303);
     } 
     else 

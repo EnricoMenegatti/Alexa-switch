@@ -11,8 +11,8 @@
 
 //WI-FI----------------------------------------------------------------------------------------------------------------
 bool wifiConnected = false;
-char ssid[40] = "";
-char password[40] = "";
+char ssid[40] = "";//Vodafone-Menegatti_plus
+char password[40] = "";//Menegatti13
 
 const char* ssid_AP = "Alexa-switch";
 const char* password_AP = "";
@@ -81,7 +81,11 @@ void setup()
       espalexa.addDevice(Device_Name, alphaChanged, EspalexaDeviceType::onoff); //non-dimmable device
       espalexa.begin(&server);
     }
-    else Serial.println("Device config NOT found!!");
+    else 
+    {
+      Serial.println("Device config NOT found!!");
+      server.begin(); // start the HTTP server
+    }
   }
   else //start AP Wi-Fi
   {

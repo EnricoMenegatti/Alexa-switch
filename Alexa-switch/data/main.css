@@ -38,7 +38,7 @@ input[type=text], input[type=number], input[type=password] {
   font-size: 16px;
 }
 
-input[type=reset], input[type=button] {
+.button {
   background-color: #00857C;
   color: #FFFFFF;
   padding: 12px 20px;
@@ -51,12 +51,12 @@ input[type=reset], input[type=button] {
   outline: none;
 }
 
-input[type=reset]:hover, input[type=button]:hover {
+.button:hover {
   background-color: #FFFFFF;
   color: #000000;
 }
 
-input[type=reset]:active, input[type=button]:active {
+.button:active {
   background-color: #445963;
   color: #FFFFFF;
 }
@@ -86,9 +86,5 @@ form.form-1 {
 
   input[type=text], input[type=number], input[type=password] {
     width: 90%;
-  }
-
-  button.but-1 {
-    float: right;
   }
 }

@@ -162,6 +162,12 @@ boolean fileWiFiConfig(int fMode) //save wifi configuration parameter inside a S
   
     case 'delete': //delete file--------------------------------------------------------------------------
     {
+      if(!SPIFFS.exists(path))
+      {
+        Serial.println("WiFi file NOT exist!");
+        return true;
+      }
+      
       if(!SPIFFS.remove(path))
       {
         Serial.println("WiFi file NOT removed!");
@@ -225,6 +231,12 @@ boolean fileDeviceConfig(int fMode) //save wifi configuration parameter inside a
   
     case 'delete': //delete file--------------------------------------------------------------------------
     {
+      if(!SPIFFS.exists(path))
+      {
+        Serial.println("Device file NOT exist!");
+        return true;
+      }
+      
       if(!SPIFFS.remove(path))
       {
         Serial.println("Device file NOT removed!");

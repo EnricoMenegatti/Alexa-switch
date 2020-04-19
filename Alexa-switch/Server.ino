@@ -6,9 +6,12 @@ void Start_Server() // Start a HTTP server with a file read handler and an uploa
   
   server.on("/SubmitWiFi", HTTP_POST, handleSubWiFi);
   server.on("/SubmitDevice", HTTP_POST, handleSubDevice);
+  server.on("/SubmitReset", HTTP_POST, handleSubReset);
+  server.on("/SubmitRipr", HTTP_POST, handleSubReset);
 
   server.on("/WiFi", handleWiFi);
   server.on("/Device", handleDevice);
+  server.on("/Advanced", handleAdvanced);
   
   server.on("/Edit.html", HTTP_POST, []() 
   {
@@ -31,72 +34,6 @@ void handleNotFound() // if the requested file or page doesn't exist, return a 4
   }
 }
 
-void handleRoot() 
-{
-  char root[2048];
-  snprintf(root, 2048,
-    "<html>\
-        <head>\
-            <title>ESP-Alexa switch</title>\
-            <link href='main.css' rel='stylesheet' type='text/css'>\
-        </head>\
-        \
-        <body>\
-            <center>\
-                <H1>Configurazione ESP-Alexa switch</H1>\
-                \
-                <ul class='sidenav'>\
-                    <li><a class='active' href='/Info'>Info</a></li>\
-                    <li><a class='content' href='/WiFi'>WiFi</a></li>\
-                    <li><a class='content' href='/Device'>Dispositivo</a></li>\
-                    <li><a class='content' href='/Advanced'>Avanzate</a></li>\
-                </ul>\
-                \
-            </center>\
-        </body>\
-    </html>");
-  server.send(200, "text/html", root);
-}
-
-void handleWiFi() 
-{
-  char wifi[2048];
-  snprintf(wifi, 2048,
-    "<html>\
-        <head>\
-            <title>ESP-Alexa switch</title>\
-            <link href='main.css' rel='stylesheet' type='text/css'>\
-        </head>\
-        \
-        <body>\
-            <center>\
-                <H1>Configurazione ESP-Alexa switch</H1>\
-                \
-                <ul class='sidenav'>\
-                    <li><a class='content' href='/Info'>Info</a></li>\
-                    <li><a class='active' href='/WiFi'>WiFi</a></li>\
-                    <li><a class='content' href='/Device'>Dispositivo</a></li>\
-                    <li><a class='content' href='/Advanced'>Avanzate</a></li>\
-                </ul>\
-                \
-                <form class='form-1' method='post' action='/SubmitWiFi'>\
-                    <H2>Wi-Fi</H2>\
-                    <label for='ssid'>SSID</label>\
-                    <input type='text' id='ssid' name='ssid' maxlength='40' value=%s>\
-                    <br><br>\
-                    \
-                    <label for='pw'>Password</label>\
-                    <input type='password' id='pw' name='pw' maxlength='40' value=%s>\
-                    \
-                    <input class='button' type='reset' value='Annulla'>\
-                    <input class='button' type='submit' value='Salva'>\
-                </form>\
-            </center>\
-        </body>\
-    </html>", ssid, password);
-    server.send(200, "text/html", wifi);
-}
-
 void handleSubWiFi() 
 {
   Serial.println("WiFi Config Submit");
@@ -117,41 +54,6 @@ void handleSubWiFi()
   }
 }
 
-void handleDevice() 
-{
-  char device[2048];
-  snprintf(device, 2048,
-    "<html>\
-        <head>\
-            <title>ESP-Alexa switch</title>\
-            <link href='main.css' rel='stylesheet' type='text/css'>\
-        </head>\
-        \
-        <body>\
-            <center>\
-                <H1>Configurazione ESP-Alexa switch</H1>\
-                \
-                <ul class='sidenav'>\
-                    <li><a class='content' href='/Info'>Info</a></li>\
-                    <li><a class='content' href='/WiFi'>WiFi</a></li>\
-                    <li><a class='active' href='/Device'>Dispositivo</a></li>\
-                    <li><a class='content' href='/Advanced'>Avanzate</a></li>\
-                </ul>\
-                \
-                <form class='form-1' method='post' action='/SubmitDevice'>\
-                    <H2>Dispositivo</H2>\
-                    <label for='name'>Nome</label>\
-                    <input type='text' id='name' name='name' maxlength='40' value=%s>\
-                    \
-                    <input class='button' type='reset' value='Annulla'>\
-                    <input class='button' type='submit' value='Salva'>\
-                </form>\
-            </center>\
-        </body>\
-    </html>", Device_Name);
-    server.send(200, "text/html", device);
-}
-
 void handleSubDevice() 
 {
   Serial.println("Device Config Submit");
@@ -168,5 +70,20 @@ void handleSubDevice()
   else 
   {
     server.send(500, "text/plain", "500: couldn't create file");
+  }
+}
+
+void handleSubReset()
+{
+  Serial.println("Riprisino Submit");
+
+  if(fileWiFiConfig('delete') && fileDeviceConfig('delete'))
+  {
+    server.sendHeader("Location", "/Advanced"); // Redirect the client to the success page
+    server.send(303); 
+  } 
+  else 
+  {
+    server.send(500, "text/plain", "500: couldn't delete file");
   }
 }

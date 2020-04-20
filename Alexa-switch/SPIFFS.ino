@@ -36,7 +36,7 @@ String formatBytes(size_t bytes) // convert sizes in bytes to KB and MB
 bool handleFileRead(String path) // send the right file to the client (if it exists)
 {
   Serial.println("handleFileRead: " + path);
-  if (path.endsWith("/")) path += "Config.html"; // If a folder is requested, send the index file
+  //if (path.endsWith("/")) path += "Config.html"; // If a folder is requested, send the index file
   
   String contentType = getContentType(path); // Get the MIME type
   String pathWithGz = path + ".gz";

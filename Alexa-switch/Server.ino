@@ -6,12 +6,12 @@ void Start_Server() // Start a HTTP server with a file read handler and an uploa
   
   server.on("/SubmitWiFi", HTTP_POST, handleSubWiFi);
   server.on("/SubmitDevice", HTTP_POST, handleSubDevice);
-  server.on("/SubmitReset", HTTP_POST, handleSubReset);
-  server.on("/SubmitRipr", HTTP_POST, handleSubReset);
+  server.on("/SubmitReset", handleSubReset);
+  server.on("/SubmitRipr", handleSubRipr);
 
   server.on("/WiFi", handleWiFi);
   server.on("/Device", handleDevice);
-  server.on("/Advanced", handleAdvanced);
+  //server.on("/Advanced", handleAdvanced);
   
   server.on("/Edit.html", HTTP_POST, []() 
   {
@@ -75,11 +75,20 @@ void handleSubDevice()
 
 void handleSubReset()
 {
+  Serial.println("Resetting ESP");
+  server.sendHeader("Location", "/"); // Redirect the client to the success page
+  server.send(303);
+  delay(1);
+  ESP.restart(); //ESP.reset();
+}
+
+void handleSubRipr()
+{
   Serial.println("Riprisino Submit");
 
   if(fileWiFiConfig('delete') && fileDeviceConfig('delete'))
   {
-    server.sendHeader("Location", "/Advanced"); // Redirect the client to the success page
+    server.sendHeader("Location", "/SuccessRipr.html"); // Redirect the client to the success page
     server.send(303); 
   } 
   else 

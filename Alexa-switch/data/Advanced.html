@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>ESP-Alexa switch</title>
+        <link href="main.css" rel="stylesheet" type="text/css">
+        <script src="main.js" type="text/javascript"></script>
+    </head>
+
+    <body onload="Startup()">
+        <a href="/SubmitReset" id="linkReset"></a>
+        <a href="/SubmitRipr" id="linkRipr"></a>
+        <center>
+            <H1>Configurazione ESP-Alexa switch</H1> <!--titolo-->
+
+            <ul class="sidenav">
+                <li><a class="content" href="/Info">Info</a></li>
+                <li><a class="content" href="/WiFi">WiFi</a></li>
+                <li><a class="content" href="/Device">Dispositivo</a></li>
+                <li><a class="active" href="/Advanced.html">Avanzate</a></li>
+            </ul>
+
+            <div class="form-1">
+                <H2>Avanzate</H2>
+                <table>
+                    <tr>
+                        <td class="first" rowspan="2"><label>Reset</label></td>
+                        <td class="second"><p class="adv">Abilita</p></td>
+                        <td class="third" rowspan="2"><button type="button" id="reset" onclick="linkReset()">Reset</button></td>
+                    </tr>
+                    <tr>
+                        <td class="second"><input type="checkbox" id="checkReset" onclick="Reset()"></td>
+                    </tr>
+
+                    <tr>
+                        <td class="first" rowspan="2"><label>Ripristino dati di Fabbrica</label></td>
+                        <td class="second"><p class="adv">Abilita</p></td>
+                        <td class="third" rowspan="2"><button type="button" id="ripristino" onclick="linkRipr()">Ripristino</button></td>
+                    </tr>
+                    <tr>
+                        <td class="second"><input type="checkbox" id="checkRipr" onclick="Ripristino()"></td>
+                    </tr>
+                </table>
+            </div>
+        </center>
+    </body>
+</html>

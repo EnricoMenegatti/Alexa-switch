@@ -17,7 +17,7 @@ void handleRoot()
                     <li><a class='active' href='/Info'>Info</a></li>\
                     <li><a class='content' href='/WiFi'>WiFi</a></li>\
                     <li><a class='content' href='/Device'>Dispositivo</a></li>\
-                    <li><a class='content' href='/Advanced'>Avanzate</a></li>\
+                    <li><a class='content' href='/Advanced.html'>Avanzate</a></li>\
                 </ul>\
                 \
             </center>\
@@ -44,7 +44,7 @@ void handleWiFi()
                     <li><a class='content' href='/Info'>Info</a></li>\
                     <li><a class='active' href='/WiFi'>WiFi</a></li>\
                     <li><a class='content' href='/Device'>Dispositivo</a></li>\
-                    <li><a class='content' href='/Advanced'>Avanzate</a></li>\
+                    <li><a class='content' href='/Advanced.html'>Avanzate</a></li>\
                 </ul>\
                 \
                 <form class='form-1' method='post' action='/SubmitWiFi'>\
@@ -83,7 +83,7 @@ void handleDevice()
                     <li><a class='content' href='/Info'>Info</a></li>\
                     <li><a class='content' href='/WiFi'>WiFi</a></li>\
                     <li><a class='active' href='/Device'>Dispositivo</a></li>\
-                    <li><a class='content' href='/Advanced'>Avanzate</a></li>\
+                    <li><a class='content' href='/Advanced.html'>Avanzate</a></li>\
                 </ul>\
                 \
                 <form class='form-1' method='post' action='/SubmitDevice'>\
@@ -98,61 +98,4 @@ void handleDevice()
         </body>\
     </html>", Device_Name);
     server.send(200, "text/html", device);
-}
-
-void handleAdvanced() 
-{
-  char advanced[2048];
-  snprintf(advanced, 2048,
-    "<html>\
-        <head>\
-            <title>ESP-Alexa switch</title>\
-            <link href='main.css' rel='stylesheet' type='text/css'>\
-            <script src='main.js' type='text/javascript'></script>\
-        </head>\
-        \
-        <body onload='Startup()'>\
-            <center>\
-                <H1>Configurazione ESP-Alexa switch</H1>\
-                \
-                <ul class='sidenav'>\
-                    <li><a class='content' href='/Info'>Info</a></li>\
-                    <li><a class='content' href='/WiFi'>WiFi</a></li>\
-                    <li><a class='content' href='/Device'>Dispositivo</a></li>\
-                    <li><a class='active' href='/Advanced'>Avanzate</a></li>\
-                </ul>\
-                \
-                <div class='form-1'>\
-                    <H2>Avanzate</H2>\
-                    <table>\
-                        <tr>\
-                            <td class='first' rowspan='2'><label>Reset</label></td>\
-                            <td class='second'><p class='adv'>Abilita</p></td>\
-                            <td class='third' rowspan='2'>\
-                                <form method='post' action='/SubmitReset'>\
-                                    <input class='button' id='reset' type='submit' value='Reset'>\
-                                </form>\
-                            </td>\
-                        </tr>\
-                        <tr>\
-                            <td class='second'><input type='checkbox' id='checkReset' onclick='Reset()'></td>\
-                        </tr>\
-                        <tr>\
-                            <td class='first' rowspan='2'><label>Ripristino dati di Fabbrica</label></td>\
-                            <td class='second'><p class='adv'>Abilita</p></td>\
-                            <td class='third' rowspan='2'>\
-                                <form method='post' action='/SubmitRipr'>\
-                                    <input class='button' id='ripristino' type='submit' value='Ripristino'>\
-                                </form>\
-                            </td>\
-                        </tr>\
-                        <tr>\
-                            <td class='second'><input type='checkbox' id='checkRipr' onclick='Ripristino()'></td>\
-                        </tr>\
-                    </table>\
-                </div>\
-            </center>\
-        </body>\
-    </html>");
-    server.send(200, "text/html", advanced);
 }

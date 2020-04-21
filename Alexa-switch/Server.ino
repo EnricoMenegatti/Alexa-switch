@@ -1,98 +1,113 @@
 
 void Start_Server() // Start a HTTP server with a file read handler and an upload handler
 {
-  server.on("/", handleRoot);
-  server.on("/Info", handleRoot);
+  //definisci la cartella da cui lo SPIFFS preleva i file.
+  server
+    .serveStatic("/", SPIFFS, "/")
+    .setDefaultFile("Info.html")
+    .setTemplateProcessor(processor);
+
+  server.on("/main.css", [](AsyncWebServerRequest *request){
+    request->send(SPIFFS, "/main.css", "text/css");
+  });
   
   server.on("/SubmitWiFi", HTTP_POST, handleSubWiFi);
   server.on("/SubmitDevice", HTTP_POST, handleSubDevice);
   server.on("/SubmitReset", handleSubReset);
   server.on("/SubmitRipr", handleSubRipr);
 
-  server.on("/WiFi", handleWiFi);
-  server.on("/Device", handleDevice);
-  //server.on("/Advanced", handleAdvanced);
   
-  server.on("/Edit.html", HTTP_POST, []() 
-  {
-    server.send(200, "text/plain", "");
-  }, handleFileUpload); // go to 'handleFileUpload'
   
-  server.onNotFound(handleNotFound); // if someone requests any other file or page, go to function 'handleNotFound'
-                                     // and check if the file exists
-}
-
-void handleNotFound() // if the requested file or page doesn't exist, return a 404 not found error
-{
-  if(!handleFileRead(server.uri())) // check if the file exists in the flash memory (SPIFFS), if so, send it
-  {
-    if (!espalexa.handleAlexaApiCall(server.uri(),server.arg(0))) //if you don't know the URI, ask espalexa whether it is an Alexa control request
+  server.onNotFound([](AsyncWebServerRequest *request){
+    String path = request->url().c_str();
+    Serial.println("handleFileRead: " + path);
+    
+   /* //String contentType = getContentType(path); // Get the MIME type
+    String pathWithGz = path + ".gz";
+    String pathWithHtml = path + ".html";
+    
+    if (SPIFFS.exists(pathWithGz) || SPIFFS.exists(path) || SPIFFS.exists(pathWithHtml)) // If the file exists, either as a compressed archive, or normal
     {
-      //whatever you want to do with 404s
-      server.send(404, "text/plain", "Not found");
+      if (SPIFFS.exists(pathWithGz)) // If there's a compressed version available
+        path += ".gz"; // Use the compressed verion
+  
+      else if (SPIFFS.exists(pathWithHtml))
+        path += ".html";
+  
+      request->send(SPIFFS, path);
+    
+      Serial.println(String("\tSent file: ") + path);
     }
-  }
+    else Serial.println(String("\tFile Not Found: ") + path); // If the file doesn't exist, return false
+  });*/
+  });
 }
 
-void handleSubWiFi() 
+String processor(const String& var)
+{
+  if(var == "SSID") return String(ssid);
+  else if(var == "PASSWORD") return String(password);
+  else if(var == "NAME") return String(Device_Name);
+  return String();
+}
+
+void handleSubWiFi(AsyncWebServerRequest *request) 
 {
   Serial.println("WiFi Config Submit");
-  String s = server.arg("plain");
+  String s = request->arg("plain");
   Serial.println(s);
 
-  server.arg("ssid").toCharArray(ssid, 40);
-  server.arg("pw").toCharArray(password, 40);
+  request->arg("ssid").toCharArray(ssid, 40);
+  request->arg("pw").toCharArray(password, 40);
 
   if(fileWiFiConfig('write'))
   {
-    server.sendHeader("Location", "/WiFi"); // Redirect the client to the success page
-    server.send(303); 
+    request->send(SPIFFS, "/WiFi");
+    request->send(303); 
   } 
   else 
   {
-    server.send(500, "text/plain", "500: couldn't create file");
+    request->send(500, "text/plain", "500: couldn't create file");
   }
 }
 
-void handleSubDevice() 
+void handleSubDevice(AsyncWebServerRequest *request) 
 {
   Serial.println("Device Config Submit");
-  String s = server.arg("plain");
+  String s = request->arg("plain");
   Serial.println(s);
   
-  server.arg("name").toCharArray(Device_Name, 40);
+  request->arg("name").toCharArray(Device_Name, 40);
 
   if(fileDeviceConfig('write'))
   {
-    server.sendHeader("Location", "/Device"); // Redirect the client to the success page
-    server.send(303); 
+    request->send(SPIFFS, "/Device.html");
+    request->send(303); 
   } 
   else 
   {
-    server.send(500, "text/plain", "500: couldn't create file");
+    request->send(500, "text/plain", "500: couldn't create file");
   }
 }
 
-void handleSubReset()
+void handleSubReset(AsyncWebServerRequest *request)
 {
   Serial.println("Resetting ESP");
-  server.sendHeader("Location", "/"); // Redirect the client to the success page
-  server.send(303);
+  request->send(303, "text/plain", "/");
   delay(1);
   ESP.restart(); //ESP.reset();
 }
 
-void handleSubRipr()
+void handleSubRipr(AsyncWebServerRequest *request)
 {
   Serial.println("Riprisino Submit");
 
   if(fileWiFiConfig('delete') && fileDeviceConfig('delete'))
   {
-    server.sendHeader("Location", "/SuccessRipr.html"); // Redirect the client to the success page
-    server.send(303); 
+    request->send(303, "Location", "/SuccessRipr");
   } 
   else 
   {
-    server.send(500, "text/plain", "500: couldn't delete file");
+    request->send(500, "text/plain", "500: couldn't delete file");
   }
 }

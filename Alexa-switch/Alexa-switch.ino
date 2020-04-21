@@ -1,12 +1,13 @@
 
 #define ESPALEXA_MAXDEVICES 1
+#define ESPALEXA_ASYNC //it is important to define this before #include <Espalexa.h>!
 //#define ESPALEXA_DEBUG
 
 #include "Espalexa.h"
 #include <ESP8266WiFi.h>
-#include <WiFiClient.h>
-#include <ESP8266WebServer.h>
-#include <ESP8266mDNS.h>
+//#include <WiFiClient.h>
+#include <ESPAsyncTCP.h>
+#include <ESPAsyncWebServer.h>
 #include <FS.h>
 
 //WI-FI----------------------------------------------------------------------------------------------------------------
@@ -28,9 +29,7 @@ char Device_Name[40] = "";
 Espalexa espalexa;
 
 //WEBSERVER----------------------------------------------------------------------------------------------------------------
-ESP8266WebServer server(80);
-File fsUploadFile;
-
+AsyncWebServer server(80);
 
 //FUNCTIONS----------------------------------------------------------------------------------------------------------------
 void alphaChanged(EspalexaDevice* d) 
@@ -99,7 +98,7 @@ void setup()
 //MAIN---------------------------------------------------------------------------------------------------------------------
 void loop()
 {
-  server.handleClient();
+  //server.handleClient();
   espalexa.loop();
   delay(1);
 }

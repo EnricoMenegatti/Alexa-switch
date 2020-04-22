@@ -10,6 +10,7 @@
 #include <ESPAsyncWebServer.h>
 #include <FS.h>
 
+bool resetESP = false;
 //WI-FI----------------------------------------------------------------------------------------------------------------
 bool wifiConnected = false;
 char ssid[40] = "";//Vodafone-Menegatti_plus
@@ -21,11 +22,8 @@ IPAddress IP_AP(192,168,4,1);
 IPAddress GTW_AP(192,168,4,1);
 IPAddress mask_AP = (255, 255, 255, 0);
 
-//EEPROM----------------------------------------------------------------------------------------------------------------
-int EE_ind;
-char Device_Name[40] = "";
-
 //ALEXA----------------------------------------------------------------------------------------------------------------
+char Device_Name[40] = "";
 Espalexa espalexa;
 
 //WEBSERVER----------------------------------------------------------------------------------------------------------------
@@ -58,21 +56,25 @@ void setup()
   Serial.println("Setup...");
   
   SPIFFS_Setup();
-  if(fileWiFiConfig('read'))
-  {  
-    Serial.print("SSID: "); Serial.println(ssid);
-    Serial.print("Password: "); Serial.println(password);
+
+  readFile(SPIFFS, "/configSSID.txt").toCharArray(ssid, 40);
+  readFile(SPIFFS, "/configPassword.txt").toCharArray(password, 40);
+  if(String(ssid).length() <= 1 || String(password).length() <= 1) 
+  {
+    Serial.println("Error reading files!");
   }
-  else Serial.println("Config file NOT found!!");
+
+  Serial.print("SSID: "); Serial.println(ssid);
+  Serial.print("Password: "); Serial.println(password);
   
   if(WiFiSTA_Setup())//try to connect Wi-Fi
   {
     Start_Server();
 
-    if(fileDeviceConfig('read'))
-    {
-      Serial.print("Device Name: "); Serial.println(Device_Name);
-      
+    readFile(SPIFFS, "/configDevice.txt").toCharArray(Device_Name, 40);
+    Serial.print("Device Name: "); Serial.println(Device_Name);
+    if(Device_Name != "")
+    {  
       pinMode(LED_BUILTIN, OUTPUT);
       pinMode(D1, OUTPUT);
       
@@ -98,7 +100,12 @@ void setup()
 //MAIN---------------------------------------------------------------------------------------------------------------------
 void loop()
 {
-  //server.handleClient();
+  if(resetESP)
+  {
+    delay(1);
+    ESP.restart(); //ESP.reset();
+  }
+  
   espalexa.loop();
   delay(1);
 }

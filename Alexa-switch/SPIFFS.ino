@@ -43,144 +43,54 @@ String getContentType(String filename) // determine the filetype of a given file
   return "text/plain";
 }
 
-boolean fileWiFiConfig(int fMode) //save wifi configuration parameter inside a SPIFFS file
+void writeFile(fs::FS &fs, const char * path, const char * message)
 {
-  const char* path = "/wifiConfig";
-  
-  switch(fMode)
+  Serial.printf("Writing file: %s\r\n", path);
+  File file = fs.open(path, "w");
+  if(!file)
   {
-    case 'write': //write file----------------------------------------------------------------------------
-    {
-      File new_file = SPIFFS.open(path, "w+");
-      if (!new_file)
-      {
-        Serial.println("WiFi file open failed!");
-        return false;
-      }
-      
-      Serial.println("Writing to SPIFFS WiFi...");
-      new_file.print("SSID: "); new_file.print(ssid); new_file.println(";");
-      new_file.print("Password: "); new_file.print(password); new_file.println(";");
-      new_file.close();
-      Serial.println("Write to SPIFFS WiFi OK!");
-      return true;
-    }
-    break;
-  
-    case 'read': //read file-------------------------------------------------------------------------------
-    {
-      int i, j;
-      File read_file = SPIFFS.open(path, "r");
-      if (!read_file)
-      {
-        Serial.println("WiFi file open failed!");
-        return false;
-      }
-      Serial.println("Reading to SPIFFS WiFi...");
-      String s = read_file.readString();
-      Serial.println(s);
-      read_file.close();
-
-      int firstEqual = s.indexOf(':');
-      int lastEqual = s.lastIndexOf(':');
-      int firstDiv = s.indexOf(';');
-      int lastDiv = s.lastIndexOf(';');
-      String S_ssid = s.substring(firstEqual + 2, firstDiv);
-      String S_pw = s.substring(lastEqual + 2, lastDiv);
-      S_ssid.toCharArray(ssid, 40);
-      S_pw.toCharArray(password, 40);
-      
-      Serial.println("Read to SPIFFS WiFi OK!");
-      return true;
-    }
-    break;
-  
-    case 'delete': //delete file--------------------------------------------------------------------------
-    {
-      if(!SPIFFS.exists(path))
-      {
-        Serial.println("WiFi file NOT exist!");
-        return true;
-      }
-      
-      if(!SPIFFS.remove(path))
-      {
-        Serial.println("WiFi file NOT removed!");
-        return false;
-      }
-      Serial.println("WiFi file removed!");
-      return true;
-    }
-    break;
+    Serial.println("- failed to open file for writing");
+    return;
   }
+  if(file.print(message)) Serial.println("- file written");
+  else Serial.println("- write failed");
 }
 
-boolean fileDeviceConfig(int fMode) //save wifi configuration parameter inside a SPIFFS file
+String readFile(fs::FS &fs, const char * path)
 {
-  const char* path = "/DeviceConfig";
-  
-  switch(fMode)
+  Serial.printf("Reading file: %s\r\n", path);
+  File file = fs.open(path, "r");
+  if(!file || file.isDirectory())
   {
-    case 'write': //write file----------------------------------------------------------------------------
-    {
-      File new_file = SPIFFS.open(path, "w+");
-      if (!new_file)
-      {
-        Serial.println("Device file open failed!");
-        return false;
-      }
-      
-      Serial.println("Writing to SPIFFS Device...");
-      new_file.print("Device name: "); new_file.print(Device_Name); new_file.println(";");
-      new_file.close();
-      Serial.println("Write to SPIFFS Device OK!");
-      return true;
-    }
-    break;
-  
-    case 'read': //read file-------------------------------------------------------------------------------
-    {
-      int i, j;
-      File read_file = SPIFFS.open(path, "r");
-      if (!read_file)
-      {
-        Serial.println("Device file open failed!");
-        return false;
-      }
-      Serial.println("Reading to SPIFFS Device...");
-      String s = read_file.readString();
-      Serial.println(s);
-      read_file.close();
-
-      int firstEqual = s.indexOf(':');
-      int firstDiv = s.indexOf(';');
-      String S_name = s.substring(firstEqual + 2, firstDiv);
-      if(S_name.length() <= 1) return false;
-      
-      S_name.toCharArray(Device_Name, 40);
-      
-      Serial.println("Read to SPIFFS Device OK!");
-      return true;
-    }
-    break;
-  
-    case 'delete': //delete file--------------------------------------------------------------------------
-    {
-      if(!SPIFFS.exists(path))
-      {
-        Serial.println("Device file NOT exist!");
-        return true;
-      }
-      
-      if(!SPIFFS.remove(path))
-      {
-        Serial.println("Device file NOT removed!");
-        return false;
-      }
-      Serial.println("Device file removed!");
-      return true;
-    }
-    break;
+    Serial.println("- empty file or failed to open file");
+    return String(" ");
   }
+  Serial.println("- read from file:");
+  String fileContent;
+  while(file.available())
+  {
+    fileContent += String((char)file.read());
+  }
+  Serial.println(fileContent);
+  return fileContent;
 }
+
+boolean deleteFile(fs::FS &fs, const char * path)
+{
+  Serial.printf("Deleting file: %s\r\n", path);
+
+  if(!fs.exists(path))
+  {
+    Serial.println("File NOT exist!");
+    return true;
+  }
+  if(!fs.remove(path))
+  {
+    Serial.println("File NOT removed!");
+    return false;
+  }
+  Serial.println("File removed!");
+  return true;
+}
+
  

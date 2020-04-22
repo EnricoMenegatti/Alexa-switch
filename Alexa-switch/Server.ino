@@ -1,28 +1,57 @@
 
 void Start_Server() // Start a HTTP server with a file read handler and an upload handler
-{
-  //definisci la cartella da cui lo SPIFFS preleva i file.
-  server
-    .serveStatic("/", SPIFFS, "/")
-    .setDefaultFile("Info.html")
-    .setTemplateProcessor(processor);
-
-  server.on("/main.css", [](AsyncWebServerRequest *request){
-    request->send(SPIFFS, "/main.css", "text/css");
+{    
+  server.on("/style.css", [](AsyncWebServerRequest *request){
+    request->send(SPIFFS, "/style.css", "text/css");
   });
   
-  server.on("/SubmitWiFi", HTTP_POST, handleSubWiFi);
-  server.on("/SubmitDevice", HTTP_POST, handleSubDevice);
-  server.on("/SubmitReset", handleSubReset);
-  server.on("/SubmitRipr", handleSubRipr);
-
+  server.on("/SubmitReset", [] (AsyncWebServerRequest *request) {
+    Serial.println("Resetting ESP");
+    request->redirect("/SuccessReset.html");
+    //request->send(SPIFFS, "/Info.html", "text/html");
+    resetESP = true;
+  });
   
+  server.on("/SubmitRipr", [] (AsyncWebServerRequest *request) {
+    Serial.println("Riprisino Submit");
+    if(deleteFile(SPIFFS, "/configSSID.txt") && deleteFile(SPIFFS, "/configPassword.txt") && deleteFile(SPIFFS, "/configDevice.txt"))
+      request->send(SPIFFS, "/SuccessRipr.html", "text/html");
+  });
+
+  server.on("/submit", HTTP_POST, [] (AsyncWebServerRequest *request) {
+    Serial.println("Config Submit");
+    int params = request->params();
+    for(int i=0;i<params;i++)
+    {
+      AsyncWebParameter* p = request->getParam(i);
+      if(p->isFile()) Serial.printf("FILE[%s]: %s, size: %u\n", p->name().c_str(), p->value().c_str(), p->size()); 
+      else if(p->isPost()) Serial.printf("POST[%s]: %s\n", p->name().c_str(), p->value().c_str());
+      else Serial.printf("GET[%s]: %s\n", p->name().c_str(), p->value().c_str());
+
+      if(p->name() == "ssid") 
+      {
+        request->arg("ssid").toCharArray(ssid, 40);
+        writeFile(SPIFFS, "/configSSID.txt", ssid);
+      }
+      else if(p->name() == "pw") 
+      {
+        request->arg("pw").toCharArray(password, 40);
+        writeFile(SPIFFS, "/configPassword.txt", password);
+      }
+      else if(p->name() == "name") 
+      {
+        request->arg("name").toCharArray(Device_Name, 40);
+        writeFile(SPIFFS, "/configDevice.txt", Device_Name);
+      }
+    }
+    request->send(SPIFFS, "/SuccessFile.html", "text/html");
+  });
   
   server.onNotFound([](AsyncWebServerRequest *request){
     String path = request->url().c_str();
     Serial.println("handleFileRead: " + path);
-    
-   /* //String contentType = getContentType(path); // Get the MIME type
+
+    if (path.endsWith("/")) path += "Info.html"; // If a folder is requested, send the index file
     String pathWithGz = path + ".gz";
     String pathWithHtml = path + ".html";
     
@@ -33,13 +62,12 @@ void Start_Server() // Start a HTTP server with a file read handler and an uploa
   
       else if (SPIFFS.exists(pathWithHtml))
         path += ".html";
-  
-      request->send(SPIFFS, path);
-    
+
+      String contentType = getContentType(path); // Get the MIME type
+      request->send(SPIFFS, path, contentType, false, processor);
       Serial.println(String("\tSent file: ") + path);
     }
     else Serial.println(String("\tFile Not Found: ") + path); // If the file doesn't exist, return false
-  });*/
   });
 }
 
@@ -49,65 +77,4 @@ String processor(const String& var)
   else if(var == "PASSWORD") return String(password);
   else if(var == "NAME") return String(Device_Name);
   return String();
-}
-
-void handleSubWiFi(AsyncWebServerRequest *request) 
-{
-  Serial.println("WiFi Config Submit");
-  String s = request->arg("plain");
-  Serial.println(s);
-
-  request->arg("ssid").toCharArray(ssid, 40);
-  request->arg("pw").toCharArray(password, 40);
-
-  if(fileWiFiConfig('write'))
-  {
-    request->send(SPIFFS, "/WiFi");
-    request->send(303); 
-  } 
-  else 
-  {
-    request->send(500, "text/plain", "500: couldn't create file");
-  }
-}
-
-void handleSubDevice(AsyncWebServerRequest *request) 
-{
-  Serial.println("Device Config Submit");
-  String s = request->arg("plain");
-  Serial.println(s);
-  
-  request->arg("name").toCharArray(Device_Name, 40);
-
-  if(fileDeviceConfig('write'))
-  {
-    request->send(SPIFFS, "/Device.html");
-    request->send(303); 
-  } 
-  else 
-  {
-    request->send(500, "text/plain", "500: couldn't create file");
-  }
-}
-
-void handleSubReset(AsyncWebServerRequest *request)
-{
-  Serial.println("Resetting ESP");
-  request->send(303, "text/plain", "/");
-  delay(1);
-  ESP.restart(); //ESP.reset();
-}
-
-void handleSubRipr(AsyncWebServerRequest *request)
-{
-  Serial.println("Riprisino Submit");
-
-  if(fileWiFiConfig('delete') && fileDeviceConfig('delete'))
-  {
-    request->send(303, "Location", "/SuccessRipr");
-  } 
-  else 
-  {
-    request->send(500, "text/plain", "500: couldn't delete file");
-  }
 }

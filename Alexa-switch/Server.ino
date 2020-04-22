@@ -33,15 +33,35 @@ void Start_Server() // Start a HTTP server with a file read handler and an uploa
         request->arg("ssid").toCharArray(ssid, 40);
         writeFile(SPIFFS, "/configSSID.txt", ssid);
       }
+      
       else if(p->name() == "pw") 
       {
         request->arg("pw").toCharArray(password, 40);
         writeFile(SPIFFS, "/configPassword.txt", password);
       }
+      
       else if(p->name() == "name") 
       {
         request->arg("name").toCharArray(Device_Name, 40);
         writeFile(SPIFFS, "/configDevice.txt", Device_Name);
+      }
+      
+      else if(p->name() == "input") 
+      {
+        inputPin = request->arg("input").toInt();
+        writeFile(SPIFFS, "/configInput.txt", String(inputPin).c_str());
+      }
+      
+      else if(p->name() == "output") 
+      {
+        outputPin = request->arg("output").toInt();
+        writeFile(SPIFFS, "/configOutput.txt", String(outputPin).c_str());
+      }
+      
+      else 
+      {
+        request->redirect("/Error.html");
+        return;
       }
     }
     request->redirect("/SuccessFile.html");
@@ -80,5 +100,7 @@ String processor(const String& var)
   if(var == "SSID") return String(ssid);
   else if(var == "PASSWORD") return String(password);
   else if(var == "NAME") return String(Device_Name);
+  else if(var == "INPUT") return String(inputPin);
+  else if(var == "OUTPUT") return String(outputPin);
   return String();
 }

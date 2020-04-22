@@ -45,7 +45,7 @@ String getContentType(String filename) // determine the filetype of a given file
 
 void writeFile(fs::FS &fs, const char * path, const char * message)
 {
-  Serial.printf("Writing file: %s\r\n", path);
+  Serial.printf("Writing ' %s ' in file: %s\r\n", message, path);
   File file = fs.open(path, "w");
   if(!file)
   {

@@ -5,7 +5,7 @@
         <link href="style.css" rel="stylesheet">
     </head>
     
-    <body>
+    <body onload="getSelect()">
         <center>
             <H1>Configurazione ESP-Alexa switch</H1>
             
@@ -24,6 +24,55 @@
                 <input class="button" type="reset" value="Annulla">
                 <input class="button" type="submit" value="Salva">
             </form>
+
+            <form class="form-1" id="InOut" method="post" action="/submit">
+                <H2>Input/Output PIN</H2>
+                <label for="input">Input</label>
+                <select id="input" name="input">
+                  <option id="16" value="16">D0</option>
+                  <option id="5" value="5">D1</option>
+                  <option id="4" value="4">D2</option>
+                  <option id="0" value="0">D3</option>
+                  <option id="2" value="2">D4</option>
+                  <option id="14" value="14">D5</option>
+                  <option id="12" value="12">D6</option>
+                  <option id="13" value="13">D7</option>
+                  <option id="15" value="15">D8</option>
+                </select>
+                <br>
+
+                <label for="output">Output</label>
+                <select id="output" name="output" form="InOut">
+                  <option id="36" value="16">D0</option>
+                  <option id="25" value="5">D1</option>
+                  <option id="24" value="4">D2</option>
+                  <option id="20" value="0">D3</option>
+                  <option id="22" value="2">D4</option>
+                  <option id="34" value="14">D5</option>
+                  <option id="32" value="12">D6</option>
+                  <option id="33" value="13">D7</option>
+                  <option id="35" value="15">D8</option>
+                </select>
+                <br>
+                
+                <input class="button" type="reset" value="Annulla">
+                <input class="button" type="submit" value="Salva">
+
+                <p id="p_input">%INPUT%</p>
+                <p id="p_output">%OUTPUT%</p>
+            </form>
         </center>
     </body>
+    <script>
+        function getSelect() 
+        {
+            var input_id = document.getElementById("p_input").innerHTML;
+            var output_id = document.getElementById("p_output").innerHTML;
+
+            output_id = output_id.value + 20;
+
+            document.getElementById(input_id).selected = "true";
+            document.getElementById(output_id).selected = "true";
+        }
+    </script>
 </html>

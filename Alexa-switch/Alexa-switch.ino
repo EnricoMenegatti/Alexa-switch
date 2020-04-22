@@ -10,7 +10,10 @@
 #include <ESPAsyncWebServer.h>
 #include <FS.h>
 
+//ESP----------------------------------------------------------------------------------------------------------------
 bool resetESP = false;
+int outputPin, inputPin;
+
 //WI-FI----------------------------------------------------------------------------------------------------------------
 bool wifiConnected = false;
 char ssid[40] = "";//Vodafone-Menegatti_plus
@@ -39,13 +42,13 @@ void alphaChanged(EspalexaDevice* d)
   {
     Serial.println("ON");
     digitalWrite(LED_BUILTIN, LOW);
-    digitalWrite(D1, HIGH);
+    digitalWrite(outputPin, HIGH);
   }
   else 
   {
     Serial.println("OFF");
     digitalWrite(LED_BUILTIN, HIGH);
-    digitalWrite(D1, LOW);
+    digitalWrite(outputPin, LOW);
   }
 }
 
@@ -61,7 +64,7 @@ void setup()
   readFile(SPIFFS, "/configPassword.txt").toCharArray(password, 40);
   if(String(ssid).length() <= 1 || String(password).length() <= 1) 
   {
-    Serial.println("Error reading files!");
+    Serial.println("Error reading WiFi files!");
   }
 
   Serial.print("SSID: "); Serial.println(ssid);
@@ -73,10 +76,13 @@ void setup()
 
     readFile(SPIFFS, "/configDevice.txt").toCharArray(Device_Name, 40);
     Serial.print("Device Name: "); Serial.println(Device_Name);
-    if(Device_Name != "")
-    {  
+    if(!String(Device_Name).length() <= 1)
+    {
+      inputPin = readFile(SPIFFS, "/configInput.txt").toInt();
+      outputPin = readFile(SPIFFS, "/configOutput.txt").toInt();
+
       pinMode(LED_BUILTIN, OUTPUT);
-      pinMode(D1, OUTPUT);
+      pinMode(outputPin, OUTPUT);
       
       // Define your devices here.
       espalexa.addDevice(Device_Name, alphaChanged, EspalexaDeviceType::onoff); //non-dimmable device

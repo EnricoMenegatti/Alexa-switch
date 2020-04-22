@@ -44,7 +44,7 @@ void Start_Server() // Start a HTTP server with a file read handler and an uploa
         writeFile(SPIFFS, "/configDevice.txt", Device_Name);
       }
     }
-    request->send(SPIFFS, "/SuccessFile.html", "text/html");
+    request->redirect("/SuccessFile.html");
   });
   
   server.onNotFound([](AsyncWebServerRequest *request){
@@ -55,7 +55,7 @@ void Start_Server() // Start a HTTP server with a file read handler and an uploa
     String pathWithGz = path + ".gz";
     String pathWithHtml = path + ".html";
     
-    if (SPIFFS.exists(pathWithGz) || SPIFFS.exists(path) || SPIFFS.exists(pathWithHtml)) // If the file exists, either as a compressed archive, or normal
+    if(SPIFFS.exists(pathWithGz) || SPIFFS.exists(path) || SPIFFS.exists(pathWithHtml)) // If the file exists, either as a compressed archive, or normal
     {
       if (SPIFFS.exists(pathWithGz)) // If there's a compressed version available
         path += ".gz"; // Use the compressed verion
@@ -67,7 +67,11 @@ void Start_Server() // Start a HTTP server with a file read handler and an uploa
       request->send(SPIFFS, path, contentType, false, processor);
       Serial.println(String("\tSent file: ") + path);
     }
-    else Serial.println(String("\tFile Not Found: ") + path); // If the file doesn't exist, return false
+    else if(!espalexa.handleAlexaApiCall(request)) //if you don't know the URI, ask espalexa whether it is an Alexa control request
+    {
+      //whatever you want to do with 404s
+      request->send(404, "text/plain", "Not found");
+    }
   });
 }
 

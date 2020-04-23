@@ -78,18 +78,29 @@ button, .button {
   cursor: pointer;
   font-size: 20px;
   margin: 20px;
-  transition-duration: 0.4s;
   outline: none;
 }
 
-button:hover, .button:hover {
+button:hover, .button:hover, button.on:hover, button.off:hover {
   background-color: #FFFFFF;
   color: #000000;
 }
 
-button:active, .button:active {
+button:active, .button:active, button.on:active, button.off:active {
   background-color: #445963;
   color: #FFFFFF;
+}
+
+button.on {
+  background-color: #8DD35F;
+  border: 3px solid #00857C;
+  font-size: 50px;
+}
+
+button.off {
+  background-color: #E35F5F;
+  border: 3px solid #00857C;
+  font-size: 50px;
 }
 
 table{

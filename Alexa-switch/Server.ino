@@ -4,11 +4,28 @@ void Start_Server() // Start a HTTP server with a file read handler and an uploa
   server.on("/style.css", [](AsyncWebServerRequest *request){
     request->send(SPIFFS, "/style.css", "text/css");
   });
+
+  server.on("/SubmitOn", [] (AsyncWebServerRequest *request) {
+    Serial.println("Submit ON");
+    
+    myEspDevice->setValue(255);
+    myEspDevice->doCallback();
+    
+    request->redirect("/Info.html");
+  });
+
+  server.on("/SubmitOff", [] (AsyncWebServerRequest *request) {
+    Serial.println("Submit OFF");
+
+    myEspDevice->setValue(0);
+    myEspDevice->doCallback();
+    
+    request->redirect("/Info.html");
+  });
   
   server.on("/SubmitReset", [] (AsyncWebServerRequest *request) {
     Serial.println("Resetting ESP");
     request->redirect("/SuccessReset.html");
-    //request->send(SPIFFS, "/Info.html", "text/html");
     resetESP = true;
   });
   
@@ -97,7 +114,8 @@ void Start_Server() // Start a HTTP server with a file read handler and an uploa
 
 String processor(const String& var)
 {
-  if(var == "SSID") return String(ssid);
+  if(var == "OUTSTATUS") return String(saveOutputPinState);
+  else if(var == "SSID") return String(ssid);
   else if(var == "PASSWORD") return String(password);
   else if(var == "NAME") return String(Device_Name);
   else if(var == "INPUT") return String(inputPin);

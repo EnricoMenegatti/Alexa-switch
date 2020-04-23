@@ -3,7 +3,6 @@
     <head>
         <title>ESP-Alexa switch</title>
         <link href="style.css" rel="stylesheet">
-        <script src="main.js" type="text/javascript"></script>
     </head>
 
     <body onload="Startup()">
@@ -43,4 +42,33 @@
             </div>
         </center>
     </body>
+    <script>
+        function Startup()
+        {
+            Reset();
+            Ripristino();
+        }
+
+        function Reset() 
+        {
+            var x = document.getElementById("checkReset").checked;
+            document.getElementById("reset").disabled = !x;
+        }
+
+        function Ripristino() 
+        {
+            var x = document.getElementById("checkRipr").checked;
+            document.getElementById("ripristino").disabled = !x;
+        }
+
+        function linkReset()
+        {
+            window.location=document.getElementById('linkReset').href;
+        }
+
+        function linkRipr()
+        {
+            window.location=document.getElementById('linkRipr').href;
+        }
+    </script>
 </html>

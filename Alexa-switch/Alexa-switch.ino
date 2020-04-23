@@ -28,6 +28,7 @@ IPAddress mask_AP = (255, 255, 255, 0);
 //ALEXA----------------------------------------------------------------------------------------------------------------
 char Device_Name[40] = "";
 Espalexa espalexa;
+EspalexaDevice* myEspDevice;
 
 //WEBSERVER----------------------------------------------------------------------------------------------------------------
 AsyncWebServer server(80);
@@ -37,8 +38,9 @@ void alphaChanged(EspalexaDevice* d)
 {
   if (d == nullptr) return; //this is good practice, but not required
   
+  Serial.print("Alpha value: "); Serial.println(d->getValue());
   Serial.print("Changed to ");
-  if (d -> getValue())
+  if (d->getValue())
   {
     Serial.println("ON");
     digitalWrite(LED_BUILTIN, LOW);
@@ -85,7 +87,8 @@ void setup()
       pinMode(outputPin, OUTPUT);
       
       // Define your devices here.
-      espalexa.addDevice(Device_Name, alphaChanged, EspalexaDeviceType::onoff); //non-dimmable device
+      myEspDevice = new EspalexaDevice(Device_Name, alphaChanged, EspalexaDeviceType::dimmable); //dimmable device
+      espalexa.addDevice(myEspDevice);
       espalexa.begin(&server);
     }
     else 

@@ -82,21 +82,13 @@ void setup()
     readFile(SPIFFS, "/configDevice.txt").toCharArray(Device_Name, 40);
     Serial.print("Device Name: "); Serial.println(Device_Name);
     if(!String(Device_Name).length() <= 1)
-    {
-      inputPin = readFile(SPIFFS, "/configInput.txt").toInt();
-      outputPin = readFile(SPIFFS, "/configOutput.txt").toInt();
-
-      pinMode(LED_BUILTIN, OUTPUT);
-      pinMode(inputPin, INPUT);
-      pinMode(outputPin, OUTPUT);
-      
+    {      
       // Define your devices here.
       myEspDevice = new EspalexaDevice(Device_Name, alphaChanged, EspalexaDeviceType::dimmable); //dimmable device
       espalexa.addDevice(myEspDevice);
       espalexa.begin(&server);
       
       allSetup = true;
-      saveInputPinState = digitalRead(inputPin);
     }
     else 
     {
@@ -110,6 +102,18 @@ void setup()
     Start_Server();
     server.begin(); // start the HTTP server
   }
+  
+//read I/O
+  inputPin = readFile(SPIFFS, "/configInput.txt").toInt();
+  outputPin = readFile(SPIFFS, "/configOutput.txt").toInt();
+  if(inputPin == 0) inputPin = 16;//D0 default
+  if(outputPin == 0) outputPin = 5;//D1 default
+
+  pinMode(LED_BUILTIN, OUTPUT);
+  pinMode(inputPin, INPUT);
+  pinMode(outputPin, OUTPUT);
+
+  saveInputPinState = digitalRead(inputPin);
 }
 
 
@@ -123,6 +127,28 @@ void loop()
       if(saveOutputPinState == true) myEspDevice->setValue(0);
       else myEspDevice->setValue(255);
       myEspDevice->doCallback();
+      
+      saveInputPinState = digitalRead(inputPin);
+      Serial.print("INPUT toggle to: "); Serial.println(saveInputPinState);
+      Serial.print("OUTPUT toggle to: "); Serial.println(saveOutputPinState);
+    }
+  }
+  else
+  {
+    if(saveInputPinState != digitalRead(inputPin)) //on toggle
+    {
+      if(saveOutputPinState == true) 
+      {
+        digitalWrite(LED_BUILTIN, HIGH);
+        digitalWrite(outputPin, LOW);
+        saveOutputPinState = false;
+      }
+      else
+      {        
+        digitalWrite(LED_BUILTIN, LOW);
+        digitalWrite(outputPin, HIGH);
+        saveOutputPinState = true;
+      }
       
       saveInputPinState = digitalRead(inputPin);
       Serial.print("INPUT toggle to: "); Serial.println(saveInputPinState);

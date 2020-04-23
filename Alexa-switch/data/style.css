@@ -151,6 +151,15 @@ input[type=checkbox] {
   padding: 20px 20px 20px 0px;
 }
 
+.form-1 select {
+  width: auto;
+  padding: 10px 0px 10px 15px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  resize: vertical;
+  font-size: 16px;
+}
+
 @media screen and (max-width: 600px) {
 
   form.form-1 {

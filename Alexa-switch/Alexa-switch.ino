@@ -11,7 +11,8 @@
 #include <FS.h>
 
 //ESP----------------------------------------------------------------------------------------------------------------
-bool resetESP = false;
+bool resetESP = false, allSetup = false;
+bool saveInputPinState, saveOutputPinState;
 int outputPin, inputPin;
 
 //WI-FI----------------------------------------------------------------------------------------------------------------
@@ -45,12 +46,14 @@ void alphaChanged(EspalexaDevice* d)
     Serial.println("ON");
     digitalWrite(LED_BUILTIN, LOW);
     digitalWrite(outputPin, HIGH);
+    saveOutputPinState = true;
   }
   else 
   {
     Serial.println("OFF");
     digitalWrite(LED_BUILTIN, HIGH);
     digitalWrite(outputPin, LOW);
+    saveOutputPinState = false;
   }
 }
 
@@ -84,12 +87,16 @@ void setup()
       outputPin = readFile(SPIFFS, "/configOutput.txt").toInt();
 
       pinMode(LED_BUILTIN, OUTPUT);
+      pinMode(inputPin, INPUT);
       pinMode(outputPin, OUTPUT);
       
       // Define your devices here.
       myEspDevice = new EspalexaDevice(Device_Name, alphaChanged, EspalexaDeviceType::dimmable); //dimmable device
       espalexa.addDevice(myEspDevice);
       espalexa.begin(&server);
+      
+      allSetup = true;
+      saveInputPinState = digitalRead(inputPin);
     }
     else 
     {
@@ -108,7 +115,21 @@ void setup()
 
 //MAIN---------------------------------------------------------------------------------------------------------------------
 void loop()
-{
+{ 
+  if(allSetup)
+  {
+    if(saveInputPinState != digitalRead(inputPin)) //on toggle
+    {
+      if(saveOutputPinState == true) myEspDevice->setValue(0);
+      else myEspDevice->setValue(255);
+      myEspDevice->doCallback();
+      
+      saveInputPinState = digitalRead(inputPin);
+      Serial.print("INPUT toggle to: "); Serial.println(saveInputPinState);
+      Serial.print("OUTPUT toggle to: "); Serial.println(saveOutputPinState);
+    }
+  }
+
   if(resetESP)
   {
     delay(1);

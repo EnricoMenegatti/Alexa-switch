@@ -113,6 +113,10 @@ void Start_Server() // Start a HTTP server with a file read handler and an uploa
 String processor(const String& var)
 {
   if(var == "OUTSTATUS") return String(saveOutputPinState);
+  else if(var == "IP") return WiFi.localIP().toString();
+  else if(var == "GW") return WiFi.gatewayIP().toString();
+  else if(var == "SUB") return WiFi.subnetMask().toString();
+  else if(var == "MAC") return String(WiFi.macAddress());
   else if(var == "SSID") return String(ssid);
   else if(var == "PASSWORD") return String(password);
   else if(var == "NAME") return String(Device_Name);

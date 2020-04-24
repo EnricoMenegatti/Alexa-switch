@@ -3,6 +3,8 @@
 #define ESPALEXA_ASYNC //it is important to define this before #include <Espalexa.h>!
 //#define ESPALEXA_DEBUG
 
+#define RESET_MIN 5
+
 #include "Espalexa.h"
 #include <ESP8266WiFi.h>
 #include <ESP8266mDNS.h>
@@ -12,9 +14,10 @@
 #include <ArduinoOTA.h>
 
 //ESP----------------------------------------------------------------------------------------------------------------
-bool resetESP = false, allSetup = false;
+bool resetESP = false, allSetup = false, serverAP = false;
 bool saveInputPinState, saveOutputPinState;
 int outputPin, inputPin;
+double thisTime, lastTime;
 
 //WI-FI----------------------------------------------------------------------------------------------------------------
 bool wifiConnected = false;
@@ -103,6 +106,9 @@ void setup()
     WiFiAP_Setup();
     Start_Server();
     server.begin(); // start the HTTP server
+
+    serverAP = true;
+    lastTime = millis();
   }
 
   if(allSetup) OTA_Setup(Device_Name);
@@ -159,6 +165,12 @@ void loop()
       Serial.print("INPUT toggle to: "); Serial.println(saveInputPinState);
       Serial.print("OUTPUT toggle to: "); Serial.println(saveOutputPinState);
     }
+  }
+
+  if(serverAP && !(String(ssid).length() <= 1 || String(password).length() <= 1))//reset automatico in caso di nessun wifi
+  {
+    thisTime = millis();
+    if(thisTime - lastTime > (RESET_MIN * 60 * 1000)) resetESP = true;
   }
 
   if(resetESP)

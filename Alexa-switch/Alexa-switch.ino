@@ -5,10 +5,11 @@
 
 #include "Espalexa.h"
 #include <ESP8266WiFi.h>
-//#include <WiFiClient.h>
+#include <ESP8266mDNS.h>
 #include <ESPAsyncTCP.h>
 #include <ESPAsyncWebServer.h>
 #include <FS.h>
+#include <ArduinoOTA.h>
 
 //ESP----------------------------------------------------------------------------------------------------------------
 bool resetESP = false, allSetup = false;
@@ -87,7 +88,9 @@ void setup()
       myEspDevice = new EspalexaDevice(Device_Name, alphaChanged, EspalexaDeviceType::dimmable); //dimmable device
       espalexa.addDevice(myEspDevice);
       espalexa.begin(&server);
-      
+
+      OTA_Setup();
+  
       allSetup = true;
     }
     else 
@@ -132,6 +135,8 @@ void loop()
       Serial.print("INPUT toggle to: "); Serial.println(saveInputPinState);
       Serial.print("OUTPUT toggle to: "); Serial.println(saveOutputPinState);
     }
+    
+  ArduinoOTA.handle();
   }
   else
   {

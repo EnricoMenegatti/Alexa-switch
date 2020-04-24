@@ -81,9 +81,10 @@ void setup()
     Start_Server();
 
     readFile(SPIFFS, "/configDevice.txt").toCharArray(Device_Name, 40);
-    Serial.print("Device Name: "); Serial.println(Device_Name);
-    if(!String(Device_Name).length() <= 1)
-    {      
+    if(!(String(Device_Name).length() <= 1))
+    {
+      Serial.print("Device Name: "); Serial.println(Device_Name);
+      
       // Define your devices here.
       myEspDevice = new EspalexaDevice(Device_Name, alphaChanged, EspalexaDeviceType::dimmable); //dimmable device
       espalexa.addDevice(myEspDevice);

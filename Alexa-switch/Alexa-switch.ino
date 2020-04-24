@@ -89,8 +89,6 @@ void setup()
       myEspDevice = new EspalexaDevice(Device_Name, alphaChanged, EspalexaDeviceType::dimmable); //dimmable device
       espalexa.addDevice(myEspDevice);
       espalexa.begin(&server);
-
-      OTA_Setup();
   
       allSetup = true;
     }
@@ -106,6 +104,9 @@ void setup()
     Start_Server();
     server.begin(); // start the HTTP server
   }
+
+  if(allSetup) OTA_Setup(Device_Name);
+  else OTA_Setup("esp8266");
   
 //read I/O
   inputPin = readFile(SPIFFS, "/configInput.txt").toInt();
@@ -136,8 +137,6 @@ void loop()
       Serial.print("INPUT toggle to: "); Serial.println(saveInputPinState);
       Serial.print("OUTPUT toggle to: "); Serial.println(saveOutputPinState);
     }
-    
-  ArduinoOTA.handle();
   }
   else
   {
@@ -167,7 +166,8 @@ void loop()
     delay(1);
     ESP.restart(); //ESP.reset();
   }
-  
+
+  ArduinoOTA.handle();
   espalexa.loop();
   delay(1);
 }

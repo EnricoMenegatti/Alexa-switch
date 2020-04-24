@@ -8,8 +8,7 @@ void Start_Server() // Start a HTTP server with a file read handler and an uploa
   server.on("/SubmitOn", [] (AsyncWebServerRequest *request) {
     Serial.println("Submit ON");
     
-    myEspDevice->setValue(255);
-    myEspDevice->doCallback();
+    saveInputPinState = !saveInputPinState;
     
     request->redirect("/Info.html");
   });
@@ -17,8 +16,7 @@ void Start_Server() // Start a HTTP server with a file read handler and an uploa
   server.on("/SubmitOff", [] (AsyncWebServerRequest *request) {
     Serial.println("Submit OFF");
 
-    myEspDevice->setValue(0);
-    myEspDevice->doCallback();
+    saveInputPinState = !saveInputPinState;
     
     request->redirect("/Info.html");
   });
